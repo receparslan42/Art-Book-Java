@@ -98,7 +98,11 @@ If you don’t have `adb` on PATH, you can use the one inside your Android SDK (
 
 ## Screenshots
 
-Add screenshots to a folder like `art/screenshots/` and embed them here:
+| List | Detail | Add/Edit |
+|------|--------|----------|
+| <img src="art/screenshots/list.jpg" width="300" alt="List screen"> | <img src="art/screenshots/detail.jpg" width="300" alt="Detail screen"> | <img src="art/screenshots/add.jpg" width="300" alt="Add/Edit screen"> |
+
+Raw Markdown alternative:
 
 ```md
 ![List](art/screenshots/list.jpg)
