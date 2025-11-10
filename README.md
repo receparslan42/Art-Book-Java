@@ -102,14 +102,6 @@ If you don’t have `adb` on PATH, you can use the one inside your Android SDK (
 |------|--------|----------|
 | <img src="art/screenshots/list.jpg" width="300" alt="List screen"> | <img src="art/screenshots/detail.jpg" width="300" alt="Detail screen"> | <img src="art/screenshots/add.jpg" width="300" alt="Add/Edit screen"> |
 
-Raw Markdown alternative:
-
-```md
-![List](art/screenshots/list.jpg)
-![Detail](art/screenshots/detail.jpg)
-![Add/Edit](art/screenshots/add.jpg)
-```
-
 ## Notes on implementation
 
 - Edge-to-edge is enabled via `EdgeToEdge.enable(this)` and insets are applied to the root view.
