@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission;
 import androidx.annotation.NonNull;
@@ -46,24 +47,18 @@ public class AddingActivity extends AppCompatActivity {
 
     private Art art; // New art
 
-    // Activity result launcher for gallery
-    private final ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-        if (result.getResultCode() == RESULT_OK) {
-            Intent intentFromResult = result.getData();
-            if (intentFromResult != null) {
-                Uri imageUri = intentFromResult.getData();
-                if (imageUri != null) {
+    // ActivityResultLauncher for system Photo Picker (API 33+) or visual media picking without storage permission
+    private final ActivityResultLauncher<PickVisualMediaRequest> pickMediaLauncher = registerForActivityResult(
+            new ActivityResultContracts.PickVisualMedia(), uri -> {
+                if (uri != null) {
                     try {
-                        // Check the sdk version for ImageDecoder
                         if (Build.VERSION.SDK_INT >= 28) {
-                            // Return the image uri to the image bitmap with decoder
-                            ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), imageUri);
+                            ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), uri);
                             art.setImage(ImageDecoder.decodeBitmap(source));
                             binding.artImageView.setImageBitmap(art.getImage());
                         } else {
-                            // Return the image uri to the image bitmap with old way
                             ContentResolver contentResolver = getContentResolver();
-                            try (InputStream inputStream = contentResolver.openInputStream(imageUri)) {
+                            try (InputStream inputStream = contentResolver.openInputStream(uri)) {
                                 art.setImage(BitmapFactory.decodeStream(inputStream));
                                 binding.artImageView.setImageBitmap(art.getImage());
                             } catch (Exception e) {
@@ -74,18 +69,40 @@ public class AddingActivity extends AppCompatActivity {
                         System.out.println(e.getMessage());
                     }
                 }
-            }
-        }
-    });
+            });
+
+    // Fallback gallery launcher for API <= 32 (READ_EXTERNAL_STORAGE path)
+    private final ActivityResultLauncher<Intent> legacyGalleryLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Uri imageUri = result.getData().getData();
+                    if (imageUri != null) {
+                        try {
+                            if (Build.VERSION.SDK_INT >= 28) {
+                                ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), imageUri);
+                                art.setImage(ImageDecoder.decodeBitmap(source));
+                                binding.artImageView.setImageBitmap(art.getImage());
+                            } else {
+                                ContentResolver contentResolver = getContentResolver();
+                                try (InputStream inputStream = contentResolver.openInputStream(imageUri)) {
+                                    art.setImage(BitmapFactory.decodeStream(inputStream));
+                                    binding.artImageView.setImageBitmap(art.getImage());
+                                } catch (Exception e) {
+                                    System.out.println(e.getMessage());
+                                }
+                            }
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                        }
+                    }
+                }
+            });
     // Request permission launcher
     private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(new RequestPermission(), isGranted -> {
-        // Check the permission
         if (isGranted) {
-            // Permission granted and open the gallery
             Intent intentToGallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            activityResultLauncher.launch(intentToGallery);
+            legacyGalleryLauncher.launch(intentToGallery);
         } else {
-            // Permission denied and show a toast message
             Toast.makeText(this, "Permission needed to access the gallery", Toast.LENGTH_SHORT).show();
         }
     });
@@ -138,11 +155,12 @@ public class AddingActivity extends AppCompatActivity {
             }
         }
 
-        // Open the gallery when the art image is clicked and the permission is granted
+        // Image pick: use Photo Picker for API 33+ (no permission), legacy gallery with permission for older versions
         binding.artImageView.setOnClickListener(view -> {
-            // Check the sdk version for permission
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                requestPermission(view, Manifest.permission.READ_MEDIA_IMAGES);
+            if (Build.VERSION.SDK_INT >= 33) {
+                pickMediaLauncher.launch(new PickVisualMediaRequest.Builder()
+                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                        .build());
             } else {
                 requestPermission(view, Manifest.permission.READ_EXTERNAL_STORAGE);
             }
@@ -198,7 +216,7 @@ public class AddingActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
             // Permission granted
             Intent intentToGallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            activityResultLauncher.launch(intentToGallery);
+            legacyGalleryLauncher.launch(intentToGallery);
         } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
             // Permission denied
             Snackbar.make(view, "Permission needed to access the gallery", Snackbar.LENGTH_INDEFINITE).setAction("Allow", v -> requestPermissionLauncher.launch(permission)).show();

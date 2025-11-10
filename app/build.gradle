@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace 'com.receparslan.artbook'
-    compileSdk 35
+    compileSdkVersion 36
 
     defaultConfig {
         applicationId "com.receparslan.artbook"
         minSdk 24
-        targetSdk 35
+        targetSdk 36
         versionCode 1
         versionName "1.0"
 
