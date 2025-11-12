@@ -56,20 +56,13 @@ public class AddingActivity extends AppCompatActivity {
                             ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), uri);
                             art.setImage(ImageDecoder.decodeBitmap(source));
                             binding.artImageView.setImageBitmap(art.getImage());
-                        } else {
-                            ContentResolver contentResolver = getContentResolver();
-                            try (InputStream inputStream = contentResolver.openInputStream(uri)) {
-                                art.setImage(BitmapFactory.decodeStream(inputStream));
-                                binding.artImageView.setImageBitmap(art.getImage());
-                            } catch (Exception e) {
-                                System.out.println(e.getMessage());
-                            }
                         }
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
                 }
-            });
+            }
+    );
 
     // Fallback gallery launcher for API <= 32 (READ_EXTERNAL_STORAGE path)
     private final ActivityResultLauncher<Intent> legacyGalleryLauncher = registerForActivityResult(
