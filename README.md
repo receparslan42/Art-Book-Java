@@ -103,9 +103,9 @@ If you don’t have `adb` on PATH, you can use the one inside your Android SDK (
 
 ## Screenshots
 
-| List                                                               | Detail                                                                 | Add/Edit                                                              |
-|--------------------------------------------------------------------|------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| <img src="art/screenshots/list.jpg" width="300" alt="List screen"> | <img src="art/screenshots/detail.jpg" width="300" alt="Detail screen"> | <img src="art/screenshots/add.jpg" width="300" alt="Add/Edit screen"> |
+| List                                                                  | Detail                                                                    | Add/Edit                                                                 |
+|-----------------------------------------------------------------------|---------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| <img src="screenshots/list_screen.jpg" width="300" alt="List Screen"> | <img src="screenshots/detail_screen.jpg" width="300" alt="Detail Screen"> | <img src="screenshots/add_screen.jpg" width="300" alt="Add/Edit Screen"> |
 
 ## Notes on implementation
 
