@@ -1,6 +1,7 @@
 package com.receparslan.artbook;
 
-import android.Manifest;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -150,13 +151,12 @@ public class AddingActivity extends AppCompatActivity {
 
         // Image pick: use Photo Picker for API 33+ (no permission), legacy gallery with permission for older versions
         binding.artImageView.setOnClickListener(view -> {
-            if (Build.VERSION.SDK_INT >= 33) {
+            if (Build.VERSION.SDK_INT >= 33)
                 pickMediaLauncher.launch(new PickVisualMediaRequest.Builder()
                         .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                         .build());
-            } else {
-                requestPermission(view, Manifest.permission.READ_EXTERNAL_STORAGE);
-            }
+            else
+                requestPermission(view);
         });
 
         // Save the art to the database and go back to the home page when the save button is clicked
@@ -204,18 +204,18 @@ public class AddingActivity extends AppCompatActivity {
     }
 
     // Request permission
-    public void requestPermission(View view, String permission) {
+    public void requestPermission(View view) {
         // Check the permission
-        if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             // Permission granted
             Intent intentToGallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             legacyGalleryLauncher.launch(intentToGallery);
-        } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
+        } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, READ_EXTERNAL_STORAGE)) {
             // Permission denied
-            Snackbar.make(view, "Permission needed to access the gallery", Snackbar.LENGTH_INDEFINITE).setAction("Allow", v -> requestPermissionLauncher.launch(permission)).show();
+            Snackbar.make(view, "Permission needed to access the gallery", Snackbar.LENGTH_INDEFINITE).setAction("Allow", v -> requestPermissionLauncher.launch(READ_EXTERNAL_STORAGE)).show();
         } else {
             // Request permission
-            requestPermissionLauncher.launch(permission);
+            requestPermissionLauncher.launch(READ_EXTERNAL_STORAGE);
         }
     }
 
